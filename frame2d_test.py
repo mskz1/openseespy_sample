@@ -73,5 +73,7 @@ def test_plot_support_fig():
     n2.plot_support_roller(ax)
     n3.plot(ax)
     plt.axis('equal')
+
     plt.show()
+    n2.plot_support_roller(ax)
 

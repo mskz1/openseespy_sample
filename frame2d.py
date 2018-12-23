@@ -66,6 +66,8 @@ class Node:
 
     def plot_support_roller(self, ax):
         size = 50
+        xmin, xmax = ax.get_xlim()
+        print(xmin,xmax)
         ox = self._x
         oy = self._y
         vertices = []
