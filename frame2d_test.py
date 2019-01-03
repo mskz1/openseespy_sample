@@ -29,6 +29,9 @@ def test_element():
     assert e1.node1 == 1
 
 
+
+
+
 @pytest.mark.skip
 def test_plot_node():
     nodes = [Node(1, 0, 0), Node(2, 1000, 0), Node(3, 2000, 1000)]
@@ -40,6 +43,7 @@ def test_plot_node():
 
     plt.axis('equal')
     plt.show()
+
 
 @pytest.mark.skip
 def test_plot_element():
@@ -58,22 +62,22 @@ def test_plot_element():
     plt.axis('equal')
     plt.show()
 
+# @pytest.mark.skip
 def test_plot_support_fig():
     n1 = Node(1, 0, 0)
     n2 = Node(2, 1000, 0)
-    n3 = Node(3, 2000, 1000)
-
+    n3 = Node(3, 8000, 1000)
+    # view_range = 8000  # 支点マークのサイズを決める
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
 
     # pin support
+    n1.plot(ax,True)
     n1.plot_support_pin(ax)
-
     n2.plot(ax)
-    n2.plot_support_roller(ax)
+    n2.plot_support_fixed(ax)
     n3.plot(ax)
+    n3.plot_support_roller(ax)
     plt.axis('equal')
 
     plt.show()
-    n2.plot_support_roller(ax)
-
