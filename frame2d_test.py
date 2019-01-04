@@ -29,9 +29,6 @@ def test_element():
     assert e1.node1 == 1
 
 
-
-
-
 @pytest.mark.skip
 def test_plot_node():
     nodes = [Node(1, 0, 0), Node(2, 1000, 0), Node(3, 2000, 1000)]
@@ -45,14 +42,17 @@ def test_plot_node():
     plt.show()
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 def test_plot_element():
     n1 = Node(1, 0, 0)
     n2 = Node(2, 1000, 0)
     n3 = Node(3, 2000, 1000)
     nodes = [n1, n2, n3]
+
     e1 = Element(1, 1, 2)
     e2 = Element(2, 2, 3)
+    e2.pinned1 = True
+    e2.pinned2 = True
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
 
@@ -62,22 +62,26 @@ def test_plot_element():
     plt.axis('equal')
     plt.show()
 
-# @pytest.mark.skip
+
+@pytest.mark.skip
 def test_plot_support_fig():
     n1 = Node(1, 0, 0)
     n2 = Node(2, 1000, 0)
-    n3 = Node(3, 8000, 1000)
-    # view_range = 8000  # 支点マークのサイズを決める
+    n3 = Node(3, 3000, 1000)
+    n4 = Node(4, 6000, 2000)
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
 
-    # pin support
-    n1.plot(ax,True)
+    n1.plot(ax, True)
     n1.plot_support_pin(ax)
-    n2.plot(ax)
+    n2.plot(ax, True)
     n2.plot_support_fixed(ax)
-    n3.plot(ax)
+    n3.plot(ax, True)
     n3.plot_support_roller(ax)
+    n4.plot(ax, True)
+    n4.plot_support_roller(ax, direc='Y')
     plt.axis('equal')
-
+    plt.xlim((-1000, 10000))
+    plt.ylim((-2000, 8000))
     plt.show()
+
