@@ -16,6 +16,7 @@ def get_theta(p1, p2):
     dy = y2 - y1
     return math.atan2(dy, dx)
 
+
 def get_shortened_points(p1, p2, d=100):
     """直線の端部から距離dだけ縮めた座標を返す"""
     theta = get_theta(p1, p2)
@@ -28,9 +29,32 @@ def get_shortened_points(p1, p2, d=100):
     return (x11, y11), (x21, y21)
 
 
-
 class Model:
-    pass
+    def __init__(self):
+        self.nodes = {}
+        self.elements = {}
+
+    def add_node(self, tag, x, y):
+        self.nodes[tag] = Node(tag, x, y)
+
+    def add_element(self, tag, node1, node2):
+        self.elements[tag] = Element(tag, node1, node2)
+
+    def get_node_by_tag(self, tag):
+        return self.nodes[tag]
+
+    def get_element_by_tag(self, tag):
+        return self.elements[tag]
+
+    def plot_model(self, ax, disp_tag=True):
+        for k, v in self.nodes.items():
+            v.plot(ax, disp_tag)
+
+        for k, v in self.elements.items():
+            n1 = self.get_node_by_tag(v.node1)
+            n2 = self.get_node_by_tag(v.node2)
+            v.plot(ax, n1, n2, disp_tag)
+
 
 
 class Node:
@@ -106,15 +130,15 @@ class Node:
         pathpatch = PathPatch(path, facecolor='None', edgecolor='k', transform=trans)
         ax.add_patch(pathpatch)
 
+        pass
+
     def plot_support_roller(self, ax, direc='X', size=9 / 72):
-        """
-        ローラー支点の描画
+        """ローラー支点の描画
         :param ax:
         :param direc:ローラーの方向 'X' or 'Y'
         :param size: 作図サイズ（ポイント）
         """
         size = size
-
         codes = [Path.MOVETO] + [Path.LINETO] * 2 + [Path.CLOSEPOLY]
         if direc == 'X':
             vertices = [(0, 0), (size / 2, - size * 1.73 / 2), (-size / 2, -size * 1.73 / 2), (0, 0)]
@@ -134,6 +158,7 @@ class Node:
 
         pathpatch = PathPatch(path, facecolor='None', edgecolor='k', transform=trans)
         ax.add_patch(pathpatch)
+        pass
 
     def plot_support_fixed(self, ax, size=9 / 72):
         """
@@ -156,6 +181,8 @@ class Node:
         pathpatch = PathPatch(path, facecolor='None', edgecolor='w', linewidth=1., transform=trans, zorder=3)
         ax.add_patch(pathpatch)
 
+        pass
+
 
 class Element:
     def __init__(self, tag=0, node1=0, node2=0, pinned1=False, pinned2=False):
@@ -170,6 +197,15 @@ class Element:
         self.resM2 = 0.
         self.resN2 = 0.
         self.resQ2 = 0.
+        self._theta = 0.
+
+    def set_theta(self):
+        # _node1 は節点番号
+        self._theta = get_theta((self._node1.x, self._node1.y), (self._node2.x, self._node2.y))
+
+    @property
+    def theta(self):
+        return self._theta
 
     @property
     def node1(self):
@@ -210,8 +246,6 @@ class Element:
     @pinned2.setter
     def pinned2(self, pinned):
         self._pinned2 = pinned
-
-
 
     def plot(self, ax, node1, node2, disp_tag=False):
         # line_style = dict(color='b', linestyle='solid', linewidth=2., marker='.')

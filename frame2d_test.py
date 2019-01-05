@@ -42,7 +42,7 @@ def test_plot_node():
     plt.show()
 
 
-# @pytest.mark.skip
+@pytest.mark.skip
 def test_plot_element():
     n1 = Node(1, 0, 0)
     n2 = Node(2, 1000, 0)
@@ -50,6 +50,8 @@ def test_plot_element():
     nodes = [n1, n2, n3]
 
     e1 = Element(1, 1, 2)
+    # e1.set_theta()
+    # assert e1.theta == 0.
     e2 = Element(2, 2, 3)
     e2.pinned1 = True
     e2.pinned2 = True
@@ -83,5 +85,26 @@ def test_plot_support_fig():
     plt.axis('equal')
     plt.xlim((-1000, 10000))
     plt.ylim((-2000, 8000))
+    plt.show()
+
+
+# @pytest.mark.skip
+def test_model():
+    mdl = Model()
+    mdl.add_node(1, 0, 0)
+    mdl.add_node(2, 1000, 0)
+    mdl.add_node(3, 2000, 1000)
+
+    mdl.add_element(1, 1, 2)
+    mdl.add_element(2, 2, 3)
+    # print(mdl.get_node_by_tag(1).x,mdl.get_node_by_tag(1).y)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    mdl.plot_model(ax)
+    plt.axis('equal')
+    # plt.xlim((-1000, 10000))
+    # plt.ylim((-2000, 8000))
     plt.show()
 
