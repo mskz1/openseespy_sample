@@ -94,11 +94,20 @@ def test_model():
     mdl.add_node(1, 0, 0)
     mdl.add_node(2, 1000, 0)
     mdl.add_node(3, 2000, 1000)
+    mdl.add_node(4, 3000, 1000)
 
     mdl.add_element(1, 1, 2)
-    mdl.add_element(2, 2, 3)
+    mdl.add_element(2, 2, 3, pinned1=True)
+    mdl.add_element(3, 3, 4, pinned1=True, pinned2=True)
     # print(mdl.get_node_by_tag(1).x,mdl.get_node_by_tag(1).y)
 
+    mdl.add_support(1, "110")
+    mdl.add_support(2, "100")
+    mdl.add_support(3, '010')
+    mdl.add_support(4, '111')
+
+    mdl.set_element_theta()
+    # mdl._show_element_theta()
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
 
@@ -107,4 +116,3 @@ def test_model():
     # plt.xlim((-1000, 10000))
     # plt.ylim((-2000, 8000))
     plt.show()
-

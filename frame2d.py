@@ -7,6 +7,9 @@ from matplotlib.patches import PathPatch
 from matplotlib import transforms
 import math
 
+NODE_R = 2 / 72
+PIN_J_R = 3 / 72
+
 
 def get_theta(p1, p2):
     """p1->p2の直線の、X軸からの傾き角度thetaを返す"""
@@ -33,18 +36,38 @@ class Model:
     def __init__(self):
         self.nodes = {}
         self.elements = {}
+        self.supports = {}
 
     def add_node(self, tag, x, y):
         self.nodes[tag] = Node(tag, x, y)
 
-    def add_element(self, tag, node1, node2):
-        self.elements[tag] = Element(tag, node1, node2)
+    def add_element(self, tag, node1, node2, pinned1=False, pinned2=False):
+        self.elements[tag] = Element(tag, node1, node2, pinned1, pinned2)
 
     def get_node_by_tag(self, tag):
         return self.nodes[tag]
 
     def get_element_by_tag(self, tag):
         return self.elements[tag]
+
+    def set_element_theta(self):
+        for k, v in self.elements.items():
+            n1 = self.get_node_by_tag(v.node1)
+            n2 = self.get_node_by_tag(v.node2)
+            v.theta = get_theta((n1.x, n1.y), (n2.x, n2.y))
+
+    def _show_element_theta(self):
+        for k, v in self.elements.items():
+            print(v.theta)
+
+    def add_support(self, tag, bcprop):
+        """
+        支点情報
+        :param tag: 節点番号
+        :param bcprop: 拘束情報 XYR '110'=pin, '010'=roller_x
+        :return:
+        """
+        self.supports[tag] = bcprop
 
     def plot_model(self, ax, disp_tag=True):
         for k, v in self.nodes.items():
@@ -55,6 +78,16 @@ class Model:
             n2 = self.get_node_by_tag(v.node2)
             v.plot(ax, n1, n2, disp_tag)
 
+        for k, v in self.supports.items():
+            node = self.get_node_by_tag(k)
+            if v == '110':
+                node.plot_support_pin(ax)
+            elif v == '010':
+                node.plot_support_roller(ax, 'X')
+            elif v == '100':
+                node.plot_support_roller(ax, 'Y')
+            elif v == '111':
+                node.plot_support_fixed(ax)
 
 
 class Node:
@@ -104,7 +137,7 @@ class Node:
         text_style = dict(textcoords='offset points', color='k', size='x-small')
 
         trans = (ax.get_figure().dpi_scale_trans + transforms.ScaledTranslation(self._x, self._y, ax.transData))
-        ax.add_patch(mpatches.Circle((0, 0), radius=2 / 72, transform=trans, **ct_style))
+        ax.add_patch(mpatches.Circle((0, 0), radius=NODE_R, transform=trans, **ct_style))
         # ax.add_patch(mpatches.Circle((self._x, self._y), radius=10, **ct_style ))
 
         # path = Path.circle((0, 0), radius=2 / 72)
@@ -207,6 +240,10 @@ class Element:
     def theta(self):
         return self._theta
 
+    @theta.setter
+    def theta(self, theta):
+        self._theta = theta
+
     @property
     def node1(self):
         return self._node1
@@ -253,8 +290,16 @@ class Element:
         text_style = dict(textcoords='offset points', color='b', size='x-small')
 
         ax.add_line(mlines.Line2D((node1.x, node2.x), (node1.y, node2.y), **line_style))
+
         if disp_tag:
             ax.annotate(str(self._tag), ((node1.x + node2.x) / 2, (node1.y + node2.y) / 2), xytext=(3, 3), **text_style)
+
+        # ct_style = dict(color='b', linestyle='solid', linewidth=1., fill=True, zorder=9)
+        ct_style = dict(ec='b', fc='w', linestyle='solid', linewidth=1., fill=True, zorder=9)
+        if self.pinned1:
+            trans = (ax.get_figure().dpi_scale_trans + transforms.ScaledTranslation(node1.x, node1.y, ax.transData))
+
+            ax.add_patch(mpatches.Circle((NODE_R+PIN_J_R, 0), radius=PIN_J_R, transform=trans, **ct_style))
 
     def plot_result(self):
         pass
