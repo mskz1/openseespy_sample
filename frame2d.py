@@ -9,6 +9,7 @@ import math
 
 NODE_R = 2 / 72
 PIN_J_R = 3 / 72
+ARROW_L = 24 / 72
 
 
 def get_theta(p1, p2):
@@ -176,12 +177,36 @@ class Node:
         if disp_tag:
             ax.annotate(str(self._tag), (self._x, self._y), xytext=(4, 4), **text_style)
 
+        # 節点荷重のプロット
         if self.loaded:
-            if self.px != 0.:
-                ax.arrow(self.x, self.y, 200, 0)
-                pass
-            if self.py != 0.:
-                pass
+            line_style = dict(color='m', linestyle='solid', linewidth=2.)
+            text_style = dict(textcoords='offset points', color='m', size='x-small')
+            # arrow_style = dict(color='m', arrowstyle='simple', mutation_scale=7)
+            arrow_style = dict(color='m', arrowstyle='->', linewidth=2, mutation_scale=12)
+            px_v = abs(self.px)
+            py_v = abs(self.py)
+            m_v = abs(self.m)
+            if self.px > 0.:  # 右矢印
+                arrow = mpatches.FancyArrowPatch((NODE_R + 1 / 72, 0), (ARROW_L, 0), transform=trans, **arrow_style)
+                ax.add_patch(arrow)
+                ax.annotate("px=" + str(px_v), (self._x, self._y), xytext=(ARROW_L * 72, 0), **text_style)
+            elif self.px < 0.:  # 左矢印
+                arrow = mpatches.FancyArrowPatch((-NODE_R - 1 / 72, 0), (-ARROW_L, 0), transform=trans, **arrow_style)
+                ax.add_patch(arrow)
+                ax.annotate("px=" + str(px_v), (self._x, self._y), xytext=(-ARROW_L * 72, 0),
+                            horizontalalignment='right', **text_style)
+
+            if self.py > 0.:  # 上矢印
+                arrow = mpatches.FancyArrowPatch((0, NODE_R + 1 / 72), (0, ARROW_L), transform=trans, **arrow_style)
+                ax.add_patch(arrow)
+                ax.annotate("py=" + str(py_v), (self._x, self._y), xytext=(0, ARROW_L * 72), rotation=90,
+                            rotation_mode='anchor', **text_style)
+            elif self.py < 0.:  # 下矢印
+                arrow = mpatches.FancyArrowPatch((0, -NODE_R - 1 / 72), (0, -ARROW_L), transform=trans, **arrow_style)
+                ax.add_patch(arrow)
+                ax.annotate("py=" + str(py_v), (self._x, self._y), xytext=(0, -ARROW_L * 72), rotation=90,
+                            horizontalalignment='right', rotation_mode='anchor', **text_style)
+
             if self.m != 0.:
                 pass
 
