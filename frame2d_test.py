@@ -90,6 +90,7 @@ def test_plot_support_fig():
 
 # @pytest.mark.skip
 def test_model():
+    """単純なモデルプロット"""
     mdl = Model()
     mdl.add_node(1, 0, 0)
     mdl.add_node(2, 1000, 0)
@@ -97,15 +98,16 @@ def test_model():
     mdl.add_node(4, 3000, 1000)
 
     mdl.add_element(1, 1, 2)
-    mdl.add_element(2, 2, 3, pinned1=True)
+    mdl.add_element(2, 2, 3, pinned1=True, pinned2=True)
     mdl.add_element(3, 3, 4, pinned1=True, pinned2=True)
     # print(mdl.get_node_by_tag(1).x,mdl.get_node_by_tag(1).y)
 
     mdl.add_support(1, "110")
-    mdl.add_support(2, "100")
-    mdl.add_support(3, '010')
+    # mdl.add_support(2, "100")
+    # mdl.add_support(3, '010')
     mdl.add_support(4, '111')
 
+    mdl.add_load_node(2, px=10)
     mdl.set_element_theta()
     # mdl._show_element_theta()
     fig = plt.figure()
@@ -115,4 +117,61 @@ def test_model():
     plt.axis('equal')
     # plt.xlim((-1000, 10000))
     # plt.ylim((-2000, 8000))
+    plt.show()
+
+
+@pytest.mark.skip
+def test_frame_model():
+    """多層ラーメンプロット"""
+    xp = [0, 5000, 11000, 16000]
+    levels = [0, 3500, 6500, 9900]
+    mdl = Model()
+
+    for i, h in enumerate(levels):
+        tag_d = (i + 1) * 100
+        for j, x in enumerate(xp):
+            tag = j + 1 + tag_d
+            # print('tag:', tag, ', x:', x, ', h:', h)
+            mdl.add_node(tag, x, h)
+    # 柱
+    elem = list(range(11, 15))
+    n1 = list(range(101, 105))
+    n2 = list(range(201, 205))
+    for e in elem:
+        mdl.add_element(e, n1.pop(), n2.pop())
+    elem = list(range(21, 25))
+    n1 = list(range(201, 205))
+    n2 = list(range(301, 305))
+    for e in elem:
+        mdl.add_element(e, n1.pop(), n2.pop())
+    elem = list(range(31, 35))
+    n1 = list(range(301, 305))
+    n2 = list(range(401, 405))
+    for e in elem:
+        mdl.add_element(e, n1.pop(), n2.pop())
+
+    # 梁
+    elem = list(range(201, 204))
+    n1 = list(range(201, 205))
+    for i, e in enumerate(elem):
+        mdl.add_element(e, n1[i], n1[i + 1])
+    elem = list(range(301, 304))
+    n1 = list(range(301, 305))
+    for i, e in enumerate(elem):
+        mdl.add_element(e, n1[i], n1[i + 1])
+    elem = list(range(401, 404))
+    n1 = list(range(401, 405))
+    for i, e in enumerate(elem):
+        mdl.add_element(e, n1[i], n1[i + 1])
+
+    mdl.add_support(101, '110')
+    mdl.add_support(102, '111')
+    mdl.add_support(103, '111')
+    mdl.add_support(104, '111')
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    mdl.plot_model(ax)
+    plt.axis('equal')
     plt.show()

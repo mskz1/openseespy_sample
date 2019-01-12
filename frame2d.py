@@ -51,6 +51,7 @@ class Model:
         return self.elements[tag]
 
     def set_element_theta(self):
+        """部材のX軸からの角度を設定"""
         for k, v in self.elements.items():
             n1 = self.get_node_by_tag(v.node1)
             n2 = self.get_node_by_tag(v.node2)
@@ -68,6 +69,21 @@ class Model:
         :return:
         """
         self.supports[tag] = bcprop
+
+    def add_load_node(self, tag, px=0, py=0, m=0):
+        """
+        節点荷重を追加
+        :param tag:
+        :param px:
+        :param py:
+        :param m:
+        :return:
+        """
+        node = self.get_node_by_tag(tag)
+        node.loaded = True
+        node.px = px
+        node.py = py
+        node.m = m
 
     def plot_model(self, ax, disp_tag=True):
         for k, v in self.nodes.items():
@@ -92,11 +108,22 @@ class Model:
 
 class Node:
     def __init__(self, tag=0, x=0, y=0, loaded=False, supported=False):
+        """
+
+        :param tag:
+        :param x:
+        :param y:
+        :param loaded:
+        :param supported:
+        """
         self._tag = tag
         self._x = x
         self._y = y
         self._loaded = loaded
         self._supported = supported
+        self.px = 0.  # 節点荷重x
+        self.py = 0.
+        self.m = 0.
         self.disp_x = 0.
         self.disp_y = 0.
         self.reac_x = 0.
@@ -127,6 +154,14 @@ class Node:
     def tag(self, tag):
         self._tag = tag
 
+    @property
+    def loaded(self):
+        return self._loaded
+
+    @loaded.setter
+    def loaded(self, loaded):
+        self._loaded = loaded
+
     def plot(self, ax, disp_tag=False):
         """
         節点描画
@@ -134,18 +169,21 @@ class Node:
         :param disp_tag: 節点番号の表示/非表示
         """
         ct_style = dict(color='k', linestyle='solid', linewidth=1., fill=True, zorder=9)
-        text_style = dict(textcoords='offset points', color='k', size='x-small')
+        text_style = dict(textcoords='offset points', color='k', size='x-small', zorder=10)
 
         trans = (ax.get_figure().dpi_scale_trans + transforms.ScaledTranslation(self._x, self._y, ax.transData))
         ax.add_patch(mpatches.Circle((0, 0), radius=NODE_R, transform=trans, **ct_style))
-        # ax.add_patch(mpatches.Circle((self._x, self._y), radius=10, **ct_style ))
-
-        # path = Path.circle((0, 0), radius=2 / 72)
-        # pathpatch = PathPatch(path, transform=trans)
-        # ax.add_patch(pathpatch)
-
         if disp_tag:
-            ax.annotate(str(self._tag), (self._x, self._y), xytext=(3, 3), **text_style)
+            ax.annotate(str(self._tag), (self._x, self._y), xytext=(4, 4), **text_style)
+
+        if self.loaded:
+            if self.px != 0.:
+                ax.arrow(self.x, self.y, 200, 0)
+                pass
+            if self.py != 0.:
+                pass
+            if self.m != 0.:
+                pass
 
     def plot_support_pin(self, ax, size=9 / 72):
         """
@@ -162,8 +200,6 @@ class Node:
         trans = (ax.get_figure().dpi_scale_trans + transforms.ScaledTranslation(self._x, self._y, ax.transData))
         pathpatch = PathPatch(path, facecolor='None', edgecolor='k', transform=trans)
         ax.add_patch(pathpatch)
-
-        pass
 
     def plot_support_roller(self, ax, direc='X', size=9 / 72):
         """ローラー支点の描画
@@ -191,7 +227,6 @@ class Node:
 
         pathpatch = PathPatch(path, facecolor='None', edgecolor='k', transform=trans)
         ax.add_patch(pathpatch)
-        pass
 
     def plot_support_fixed(self, ax, size=9 / 72):
         """
@@ -214,11 +249,17 @@ class Node:
         pathpatch = PathPatch(path, facecolor='None', edgecolor='w', linewidth=1., transform=trans, zorder=3)
         ax.add_patch(pathpatch)
 
-        pass
-
 
 class Element:
     def __init__(self, tag=0, node1=0, node2=0, pinned1=False, pinned2=False):
+        """
+
+        :param tag:
+        :param node1:節点番号
+        :param node2:節点番号
+        :param pinned1:
+        :param pinned2:
+        """
         self._tag = tag
         self._node1 = node1
         self._node2 = node2
@@ -297,9 +338,19 @@ class Element:
         # ct_style = dict(color='b', linestyle='solid', linewidth=1., fill=True, zorder=9)
         ct_style = dict(ec='b', fc='w', linestyle='solid', linewidth=1., fill=True, zorder=9)
         if self.pinned1:
-            trans = (ax.get_figure().dpi_scale_trans + transforms.ScaledTranslation(node1.x, node1.y, ax.transData))
+            theta = self.theta
+            dx = (NODE_R + PIN_J_R) * math.cos(theta)
+            dy = (NODE_R + PIN_J_R) * math.sin(theta)
 
-            ax.add_patch(mpatches.Circle((NODE_R+PIN_J_R, 0), radius=PIN_J_R, transform=trans, **ct_style))
+            trans = (ax.get_figure().dpi_scale_trans + transforms.ScaledTranslation(node1.x, node1.y, ax.transData))
+            ax.add_patch(mpatches.Circle((dx, dy), radius=PIN_J_R, transform=trans, **ct_style))
+        if self.pinned2:
+            theta = self.theta
+            dx = (NODE_R + PIN_J_R) * math.cos(theta)
+            dy = (NODE_R + PIN_J_R) * math.sin(theta)
+
+            trans = (ax.get_figure().dpi_scale_trans + transforms.ScaledTranslation(node2.x, node2.y, ax.transData))
+            ax.add_patch(mpatches.Circle((-dx, -dy), radius=PIN_J_R, transform=trans, **ct_style))
 
     def plot_result(self):
         pass
