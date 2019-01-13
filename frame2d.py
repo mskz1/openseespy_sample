@@ -3,7 +3,7 @@ import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import numpy as np
 from matplotlib.path import Path
-from matplotlib.patches import PathPatch
+from matplotlib.patches import PathPatch, Arc, RegularPolygon
 from matplotlib import transforms
 import math
 
@@ -163,6 +163,28 @@ class Node:
     def loaded(self, loaded):
         self._loaded = loaded
 
+    def drawCircleArrow(self, ax, radius, centX, centY, angle_, theta2_, color_='black'):
+        # ========Line
+        arc = Arc([centX, centY], radius, radius, angle=angle_,
+                  theta1=0, theta2=theta2_, capstyle='round', linestyle='-', lw=2, color=color_)
+        ax.add_patch(arc)
+
+        # ========Create the arrow head
+        endX = centX + (radius / 2) * np.cos(math.radians(theta2_ + angle_))  # Do trig to determine end position
+        endY = centY + (radius / 2) * np.sin(math.radians(theta2_ + angle_))
+
+        ax.add_patch(  # Create triangle as arrow head
+            RegularPolygon(
+                (endX, endY),  # (x,y)
+                3,  # number of vertices
+                radius / 9,  # radius
+                math.radians(angle_ + theta2_),  # orientation
+                color=color_
+            )
+        )
+        # ax.set_xlim([centX - radius, centY + radius]) and ax.set_ylim([centY - radius, centY + radius])
+        # Make sure you keep the axes scaled or else arrow will distort
+
     def plot(self, ax, disp_tag=False):
         """
         節点描画
@@ -207,7 +229,13 @@ class Node:
                 ax.annotate("py=" + str(py_v), (self._x, self._y), xytext=(0, -ARROW_L * 72), rotation=90,
                             horizontalalignment='right', rotation_mode='anchor', **text_style)
 
-            if self.m != 0.:
+            if self.m > 0.:
+                # TODO 2019-0113
+                # arrow = mpatches.FancyArrowPatch((0, ARROW_L), (ARROW_L,0), transform=trans, connectionstyle='angle3,angleA=0,angleB=-90',**arrow_style)
+                # arrow = mpatches.FancyArrowPatch((0, ARROW_L), (0,-ARROW_L), transform=trans, connectionstyle='arc,angleA=0,armA=30,angleB=180,armB=30,rad=-3',**arrow_style)
+                # arrow = mpatches.FancyArrowPatch((0, ARROW_L), (0, -ARROW_L), transform=trans, connectionstyle='arc3,rad=-0.9',**arrow_style)
+                # ax.add_patch(arrow)
+                self.drawCircleArrow(ax, 300, self.x, self.y, 75, 180, color_='m')
                 pass
 
     def plot_support_pin(self, ax, size=9 / 72):

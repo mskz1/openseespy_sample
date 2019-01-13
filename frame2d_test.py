@@ -110,6 +110,7 @@ def test_model():
 
     mdl.add_load_node(2, px=20, py=10)
     mdl.add_load_node(3, px=-10, py=-30)
+    mdl.add_load_node(1, m=10)
     mdl.set_element_theta()
     # mdl._show_element_theta()
     fig = plt.figure()
