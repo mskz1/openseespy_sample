@@ -430,15 +430,19 @@ class Element:
             theta = self.theta
             hp = 10
 
-            n1 = (node1.x, node2.y)
-            n2 = (node2.x, node2.y)
-            n3 = (node2.x - hp * math.sin(theta), node2.y + hp * math.cos(theta))
-            n4 = (node1.x - hp * math.sin(theta), node1.y + hp * math.cos(theta))
+            n1 = [node1.x, node2.y]
+            n2 = [node2.x, node2.y]
+            n3 = [node2.x - hp * math.sin(theta), node2.y + hp * math.cos(theta)]
+            n4 = [node1.x - hp * math.sin(theta), node1.y + hp * math.cos(theta)]
             xc = [n1[0], n2[0], n3[0], n4[0]]
             yc = [n1[1], n2[1], n3[1], n4[1]]
+            # xy = n1+n2+n3+n4
+            xy = [xc,yc]
             print(xc)
             print(yc)
-            # ax.add_patch(mpatches.Polygon([xc, yc], **line_style))
+            print(xy)
+
+            ax.add_patch(mpatches.Polygon(xy, **line_style))
 
     def plot_result(self):
         pass
