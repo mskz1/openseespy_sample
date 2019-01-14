@@ -95,7 +95,7 @@ def test_model():
     mdl.add_node(1, 0, 0)
     mdl.add_node(2, 1000, 0)
     mdl.add_node(3, 4000, 1000)
-    mdl.add_node(4, 4000, 500)
+    mdl.add_node(4, 5000, 500)
 
     mdl.add_element(1, 1, 2)
     mdl.add_element(2, 2, 3, pinned1=False, pinned2=False)
@@ -111,6 +111,10 @@ def test_model():
     mdl.add_load_node(2, px=20, py=10)
     mdl.add_load_node(3, px=-10, py=-30)
     mdl.add_load_node(1, m=10)
+    mdl.add_load_node(4, m=-18)
+
+    mdl.add_load_element(1, w=-1)
+
     mdl.set_element_theta()
     # mdl._show_element_theta()
     fig = plt.figure()

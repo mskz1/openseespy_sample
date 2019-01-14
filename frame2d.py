@@ -86,6 +86,17 @@ class Model:
         node.py = py
         node.m = m
 
+    def add_load_element(self, tag, w=0):
+        """
+        部材荷重を追加。等分布荷重のみ
+        :param tag:
+        :param w:
+        :return:
+        """
+        elem = self.get_element_by_tag(tag)
+        elem.loaded = True
+        elem.w = w
+
     def plot_model(self, ax, disp_tag=True):
         for k, v in self.nodes.items():
             v.plot(ax, disp_tag)
@@ -164,6 +175,7 @@ class Node:
         self._loaded = loaded
 
     def drawCircleArrow(self, ax, radius, centX, centY, angle_, theta2_, color_='black'):
+        """円矢印を描く"""
         # ========Line
         arc = Arc([centX, centY], radius, radius, angle=angle_,
                   theta1=0, theta2=theta2_, capstyle='round', linestyle='-', lw=2, color=color_)
@@ -230,13 +242,19 @@ class Node:
                             horizontalalignment='right', rotation_mode='anchor', **text_style)
 
             if self.m > 0.:
-                # TODO 2019-0113
+                # TODO 2019-0113 円矢印の描き方検討
                 # arrow = mpatches.FancyArrowPatch((0, ARROW_L), (ARROW_L,0), transform=trans, connectionstyle='angle3,angleA=0,angleB=-90',**arrow_style)
                 # arrow = mpatches.FancyArrowPatch((0, ARROW_L), (0,-ARROW_L), transform=trans, connectionstyle='arc,angleA=0,armA=30,angleB=180,armB=30,rad=-3',**arrow_style)
                 # arrow = mpatches.FancyArrowPatch((0, ARROW_L), (0, -ARROW_L), transform=trans, connectionstyle='arc3,rad=-0.9',**arrow_style)
                 # ax.add_patch(arrow)
-                self.drawCircleArrow(ax, 300, self.x, self.y, 75, 180, color_='m')
-                pass
+                # self.drawCircleArrow(ax, 300, self.x, self.y, 75, 180, color_='m')
+                ax.plot([self.x], [self.y], marker=r'$\circlearrowright$', ms=22, color='m')
+                ax.annotate("m=" + str(m_v), (self._x, self._y), xytext=(0, 12), **text_style)
+
+            elif self.m < 0.:
+                ax.plot([self.x], [self.y], marker=r'$\circlearrowleft$', ms=22, color='m')
+                ax.annotate("m=" + str(m_v), (self._x, self._y), xytext=(0, 12), horizontalalignment='right',
+                            **text_style)
 
     def plot_support_pin(self, ax, size=9 / 72):
         """
@@ -310,14 +328,16 @@ class Element:
         :param tag:
         :param node1:節点番号
         :param node2:節点番号
-        :param pinned1:
-        :param pinned2:
+        :param pinned1:始点ピン接合
+        :param pinned2:終点ピン接合
         """
         self._tag = tag
         self._node1 = node1
         self._node2 = node2
         self._pinned1 = pinned1
         self._pinned2 = pinned2
+        self.loaded = False
+        self.w = 0.  # 等分布荷重
         self.resM1 = 0.
         self.resN1 = 0.
         self.resQ1 = 0.
@@ -404,6 +424,21 @@ class Element:
 
             trans = (ax.get_figure().dpi_scale_trans + transforms.ScaledTranslation(node2.x, node2.y, ax.transData))
             ax.add_patch(mpatches.Circle((-dx, -dy), radius=PIN_J_R, transform=trans, **ct_style))
+
+        if self.loaded:
+            # 等分布荷重の描画
+            theta = self.theta
+            hp = 10
+
+            n1 = (node1.x, node2.y)
+            n2 = (node2.x, node2.y)
+            n3 = (node2.x - hp * math.sin(theta), node2.y + hp * math.cos(theta))
+            n4 = (node1.x - hp * math.sin(theta), node1.y + hp * math.cos(theta))
+            xc = [n1[0], n2[0], n3[0], n4[0]]
+            yc = [n1[1], n2[1], n3[1], n4[1]]
+            print(xc)
+            print(yc)
+            # ax.add_patch(mpatches.Polygon([xc, yc], **line_style))
 
     def plot_result(self):
         pass
