@@ -310,15 +310,23 @@ class Node:
         h = 0.7 * size
         trans = (ax.get_figure().dpi_scale_trans + transforms.ScaledTranslation(self._x, self._y, ax.transData))
 
-        support_patch = mpatches.Rectangle((-w * 0.5, -h * 1.0), w, h, linewidth=0.9, zorder=2, hatch='//////', fc='w',
+        # support_patch = mpatches.Rectangle((-w * 0.5, -h * 1.0), w, h, linewidth=0.9, zorder=2, hatch='//////', fc='w',
+        #                                    ec='k', alpha=1, transform=trans)
+        support_patch = mpatches.Rectangle((-w * 0.5, -h * 1.0), w, h, linewidth=0., zorder=2, hatch='//////', fc='w',
                                            ec='k', alpha=1, transform=trans)
         ax.add_patch(support_patch)
-        # 左右端、下端を白線で上描き
-        codes = [Path.MOVETO] + [Path.LINETO] * 3
-        vertices = [(w / 2, 0), (w / 2, -h), (-w / 2, -h), (-w / 2, 0)]
+        codes = [Path.MOVETO] + [Path.LINETO] + [Path.CLOSEPOLY]
+        vertices = [(-w * 0.5, 0), (w * 0.5, 0), (0, 0)]
         path = Path(vertices, codes)
-        pathpatch = PathPatch(path, facecolor='None', edgecolor='w', linewidth=1., transform=trans, zorder=3)
+        pathpatch = PathPatch(path, facecolor='None', edgecolor='k', transform=trans, linewidth=1.)
         ax.add_patch(pathpatch)
+
+        # 左右端、下端を白線で上描き
+        # codes = [Path.MOVETO] + [Path.LINETO] * 3
+        # vertices = [(w / 2, 0), (w / 2, -h), (-w / 2, -h), (-w / 2, 0)]
+        # path = Path(vertices, codes)
+        # pathpatch = PathPatch(path, facecolor='None', edgecolor='w', linewidth=1., transform=trans, zorder=3)
+        # ax.add_patch(pathpatch)
 
 
 class Element:
@@ -427,22 +435,30 @@ class Element:
 
         if self.loaded:
             # 等分布荷重の描画
+            # TODO 全体座標系か、要素座標系か
+            # line_style_load = dict(color='g', linestyle='solid', linewidth=1., fill=False, hatch="||")
+            line_style_load = dict(color='g', linestyle='solid', linewidth=1., alpha=0.2)
+
+            # TODO 高さ方向だけ座標系を変えられる？
             theta = self.theta
-            hp = 10
+            hp = 200
+            if 1<0:  # 要素座標系
+                n1 = [node1.x, node1.y]
+                n2 = [node2.x, node2.y]
+                n3 = [node2.x - hp * math.sin(theta), node2.y + hp * math.cos(theta)]
+                n4 = [node1.x - hp * math.sin(theta), node1.y + hp * math.cos(theta)]
 
-            n1 = [node1.x, node2.y]
-            n2 = [node2.x, node2.y]
-            n3 = [node2.x - hp * math.sin(theta), node2.y + hp * math.cos(theta)]
-            n4 = [node1.x - hp * math.sin(theta), node1.y + hp * math.cos(theta)]
-            xc = [n1[0], n2[0], n3[0], n4[0]]
-            yc = [n1[1], n2[1], n3[1], n4[1]]
-            # xy = n1+n2+n3+n4
-            xy = [xc,yc]
-            print(xc)
-            print(yc)
-            print(xy)
+            if 1>0:  # 全体座標系
+                n1 = [node1.x, node1.y]
+                n2 = [node2.x, node2.y]
+                n3 = [node2.x , node2.y + hp ]
+                n4 = [node1.x , node1.y + hp ]
 
-            ax.add_patch(mpatches.Polygon(xy, **line_style))
+            xy = [n1, n2, n3, n4]
+
+
+
+            ax.add_patch(mpatches.Polygon(xy, **line_style_load))
 
     def plot_result(self):
         pass

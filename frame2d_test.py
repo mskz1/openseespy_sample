@@ -114,6 +114,9 @@ def test_model():
     mdl.add_load_node(4, m=-18)
 
     mdl.add_load_element(1, w=-1)
+    mdl.add_load_element(2, w=-1)
+    mdl.add_load_element(3, w=-1)
+
 
     mdl.set_element_theta()
     # mdl._show_element_theta()
@@ -172,7 +175,7 @@ def test_frame_model():
         mdl.add_element(e, n1[i], n1[i + 1])
 
     mdl.add_support(101, '110')
-    mdl.add_support(102, '111')
+    mdl.add_support(102, '010')
     mdl.add_support(103, '111')
     mdl.add_support(104, '111')
 
