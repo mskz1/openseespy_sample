@@ -441,24 +441,34 @@ class Element:
 
             # TODO 高さ方向だけ座標系を変えられる？
             theta = self.theta
-            hp = 200
-            if 1<0:  # 要素座標系
+
+            hp = 100
+            trans = ax.get_figure().dpi_scale_trans
+            dpi = ax.get_figure().get_dpi()
+            # hp = trans.transform((0,1))[1]
+            offset = transforms.offset_copy(ax.transData, fig=ax.get_figure(), y=4, units='points')
+            print(hp, dpi)
+
+            if 1 < 0:  # 要素座標系
                 n1 = [node1.x, node1.y]
                 n2 = [node2.x, node2.y]
                 n3 = [node2.x - hp * math.sin(theta), node2.y + hp * math.cos(theta)]
                 n4 = [node1.x - hp * math.sin(theta), node1.y + hp * math.cos(theta)]
 
-            if 1>0:  # 全体座標系
+            if 1 > 0:  # 全体座標系
                 n1 = [node1.x, node1.y]
                 n2 = [node2.x, node2.y]
-                n3 = [node2.x , node2.y + hp ]
-                n4 = [node1.x , node1.y + hp ]
+                n3 = [node2.x, node2.y + hp]
+                n4 = [node1.x, node1.y + hp]
 
             xy = [n1, n2, n3, n4]
 
+            ax.add_patch(mpatches.Polygon(xy, transform=offset, **line_style_load))
 
 
-            ax.add_patch(mpatches.Polygon(xy, **line_style_load))
+
+
+
 
     def plot_result(self):
         pass
