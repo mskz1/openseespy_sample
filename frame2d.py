@@ -437,7 +437,7 @@ class Element:
             # 等分布荷重の描画
             # TODO 全体座標系か、要素座標系か
             # line_style_load = dict(color='g', linestyle='solid', linewidth=1., fill=False, hatch="||")
-            line_style_load = dict(color='g', linestyle='solid', linewidth=1., alpha=0.2)
+            line_style_load = dict(color='m', linestyle='solid', linewidth=1., alpha=0.2)
 
             # TODO 高さ方向だけ座標系を変えられる？
             theta = self.theta

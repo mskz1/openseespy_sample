@@ -30,13 +30,16 @@ path_data = [
 codes, verts = zip(*path_data)
 path = mpatches.Path(verts, codes)
 
-trans = transforms.Affine2D().rotate_deg_around(0, 0, 45) + ax.transData
+trans = transforms.Affine2D().rotate_deg_around(0, 0, 30) + ax.transData
 
 # patch = mpatches.PathPatch(path, facecolor='b', alpha=0.5, transform=trans)
 patch = mpatches.PathPatch(path, facecolor='b', alpha=0.5)
 patch.set_transform(trans)
 ax.add_patch(patch)
 
+# inv = fig.dpi_scale_trans.inverted()
+# size = inv.transform((1,1))
+# print(size)
 # trans = (fig.dpi_scale_trans +
 #          transforms.ScaledTranslation(0, 0, ax.transData))
 
@@ -44,5 +47,17 @@ ax.add_patch(patch)
 
 # ax.set_xlim((-1000, 2000))
 plt.axis('equal')
+print("fig.get_size_inches()=",fig.get_size_inches())
 
 plt.show()
+
+print("fig.dpi=",fig.dpi)
+print("fig.get_size_inches()=",fig.get_size_inches())
+
+inv = fig.dpi_scale_trans.inverted()
+size = inv.transform((1280, 960))
+print(size)
+
+print(fig.dpi_scale_trans.transform((6.4, 4.8)))
+print(ax.get_xlim())
+print(ax.get_ylim())
