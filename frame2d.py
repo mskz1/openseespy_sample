@@ -32,6 +32,21 @@ def get_shortened_points(p1, p2, d=100):
     y21 = y2 - d * math.sin(theta)
     return (x11, y11), (x21, y21)
 
+def div_line(p1, p2, n=5, len_limit=300):
+    #  TODO 長さを計算？　最大長さをコントロール？
+    dx = p2[0] - p1[0]
+    dy = p2[1] - p1[1]
+    len = math.sqrt(dx ** 2 + dy ** 2)
+    n_lim = math.ceil(len / len_limit)
+    if n < n_lim:
+        n = n_lim
+
+    res_x = []
+    res_y = []
+    for i in range(n + 1):
+        res_x.append(p1[0] + dx * i / n)
+        res_y.append(p1[1] + dy * i / n)
+    return res_x, res_y
 
 class Model:
     def __init__(self):
@@ -439,6 +454,9 @@ class Element:
             # line_style_load = dict(color='g', linestyle='solid', linewidth=1., fill=False, hatch="||")
             line_style_load = dict(color='m', linestyle='solid', linewidth=1., alpha=0.2)
 
+            marker_style = dict(markersize=12, mfc="m", mec="m", markeredgewidth=0.01)
+            line_style = dict(linestyle=(0, (10, 5)), color='m', linewidth=1.)
+
             # TODO 高さ方向だけ座標系を変えられる？
             theta = self.theta
 
@@ -463,12 +481,13 @@ class Element:
 
             xy = [n1, n2, n3, n4]
 
-            ax.add_patch(mpatches.Polygon(xy, transform=offset, **line_style_load))
-
-
-
-
-
+            # ax.add_patch(mpatches.Polygon(xy, transform=offset, **line_style_load))
+            hp=150
+            p1 = [node1.x ,node1.y + hp]
+            p2 = [node2.x, node2.y + hp]
+            xc, yc = div_line(p1, p2, n=5)
+            line = mlines.Line2D(xc, yc, marker=r"$\downarrow$", **line_style, **marker_style)
+            ax.add_line(line)
 
     def plot_result(self):
         pass
